@@ -4,43 +4,44 @@ import (
 	"strings"
 	"time"
 
-	"gno.land/p/jeronimoalbi/blog"
+	pblog "gno.land/p/jeronimoalbi/blog"
 	"gno.land/p/nt/ownable"
 )
 
 // TODO: Support tags, basic search, sort by date
 // TODO: Support datasource to integrate with home realm
 
-var auth = ownable.NewWithOrigin()
-
-var Blog = blog.Blog{Title: "El Blog de Jerónimo"}
+var (
+	blog  = pblog.Blog{Title: "A Blog of a Gnome"}
+	owner = ownable.NewWithOrigin()
+)
 
 func Publish(_ realm, slug, title, content string) {
-	auth.AssertOwnedByPrevious()
+	owner.AssertOwnedByPrevious()
 
 	content = strings.TrimSpace(content)
 	if content == "" {
 		panic("content is empty")
 	}
 
-	Blog.Post(&blog.Post{
+	blog.Post(&pblog.Post{
 		Slug:      slug,
 		Title:     title,
-		Status:    blog.StatusPublished,
+		Status:    pblog.StatusPublished,
 		Content:   strings.TrimSpace(content),
 		CreatedAt: time.Now(),
 	})
 }
 
 func Update(_ realm, slug, title, content string) {
-	auth.AssertOwnedByPrevious()
+	owner.AssertOwnedByPrevious()
 
 	content = strings.TrimSpace(content)
 	if content == "" {
 		panic("content is empty")
 	}
 
-	p, found := Blog.Get(slug)
+	p, found := blog.Get(slug)
 	if !found {
 		panic("post not found")
 	}
@@ -55,9 +56,9 @@ func Update(_ realm, slug, title, content string) {
 }
 
 func Delete(_ realm, slug string) {
-	auth.AssertOwnedByPrevious()
+	owner.AssertOwnedByPrevious()
 
-	if _, found := Blog.Remove(slug); !found {
+	if _, found := blog.Remove(slug); !found {
 		panic("post not found")
 	}
 }

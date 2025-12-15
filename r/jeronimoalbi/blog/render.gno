@@ -4,7 +4,7 @@ import (
 	"chain/runtime"
 	"strings"
 
-	"gno.land/p/jeronimoalbi/blog"
+	pblog "gno.land/p/jeronimoalbi/blog"
 	"gno.land/p/jeronimoalbi/pager"
 	"gno.land/p/moul/md"
 	"gno.land/p/nt/mux"
@@ -30,20 +30,20 @@ func Render(path string) string {
 }
 
 func renderBlog(res *mux.ResponseWriter, req *mux.Request) {
-	pages, err := pager.New(req.RawPath, Blog.Size(), pager.WithPageSize(itemsPerPage))
+	pages, err := pager.New(req.RawPath, blog.Size(), pager.WithPageSize(itemsPerPage))
 	if err != nil {
 		res.Write(err.Error())
 		return
 	}
 
-	res.Write(md.H1(Blog.Title))
-	if Blog.Description != "" {
-		res.Write(md.Paragraph(Blog.Description))
+	res.Write(md.H1(blog.Title))
+	if blog.Description != "" {
+		res.Write(md.Paragraph(blog.Description))
 	}
 
 	realmPath := strings.TrimPrefix(runtime.CurrentRealm().PkgPath(), "gno.land")
 
-	Blog.Iterate(pages.Offset(), pages.PageSize(), func(p *blog.Post) bool {
+	blog.Iterate(pages.Offset(), pages.PageSize(), func(p *pblog.Post) bool {
 		path := realmPath + ":posts/" + p.Slug
 		res.Write(md.Bold(md.Link(p.Title, path)) + "  \n")
 		res.Write(md.Italic("Published on " + p.PublishAt.UTC().Format(shortDateFormat)))
@@ -58,7 +58,7 @@ func renderBlog(res *mux.ResponseWriter, req *mux.Request) {
 
 func renderPost(res *mux.ResponseWriter, req *mux.Request) {
 	slug := req.GetVar("slug")
-	p, found := Blog.Get(slug)
+	p, found := blog.Get(slug)
 	if !found {
 		res.Write("Post not found")
 		return
