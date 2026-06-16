@@ -1,9 +1,5 @@
 // Package expect provides testing support for packages and realms.
 //
-// The opinionated approach taken on this package for testing is to use function chaining and
-// semanthics to hopefully make unit and file testing fun. Focus is not on speed as there are
-// other packages that would run tests faster like the official `uassert` or `urequire` packages.
-//
 // Values can be asserted using the `Value()` function, for example:
 //
 //	func TestFoo(t *testing.T) {
