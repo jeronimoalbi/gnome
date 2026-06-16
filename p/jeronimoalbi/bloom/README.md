@@ -3,8 +3,8 @@
 Package implements a Bloom filter, a space-efficient probabilistic data structure
 used to test whether an element is a member of a set.
 
-A Bloom filter never returns a false negative: if `Contains` returns `false`, the
-element was definitely never added. It may return a false positive: `Contains` can
+A Bloom filter never returns a false negative. If `Contains` returns `false`, the
+element was definitely never added. It may return a false positive, `Contains` can
 return `true` for an element that was never added. This trade-off lets the filter
 use far less memory than storing the elements themselves, which makes it useful for
 membership checks such as caches, deduplication, or "have I seen this before?" tests.
