@@ -30,9 +30,9 @@ func TestDatastoreCreateStorage(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			var db Datastore
+			db := NewDatastore()
 			if tc.setup != nil {
-				tc.setup(&db)
+				tc.setup(db)
 			}
 
 			storage := db.CreateStorage(tc.storageName)
@@ -50,10 +50,8 @@ func TestDatastoreCreateStorage(t *testing.T) {
 }
 
 func TestDatastoreHasStorage(t *testing.T) {
-	var (
-		db   Datastore
-		name = "users"
-	)
+	db := NewDatastore()
+	name := "users"
 
 	uassert.False(t, db.HasStorage(name))
 
@@ -62,10 +60,8 @@ func TestDatastoreHasStorage(t *testing.T) {
 }
 
 func TestDatastoreGetStorage(t *testing.T) {
-	var (
-		db   Datastore
-		name = "users"
-	)
+	db := NewDatastore()
+	name := "users"
 
 	storage := db.GetStorage(name)
 	uassert.Equal(t, nil, storage)

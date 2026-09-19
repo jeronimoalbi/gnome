@@ -26,7 +26,7 @@
 //
 // Example usage:
 //
-//	var db datastore.Datastore
+//	db := datastore.NewDatastore()
 //
 //	// Define a unique case insensitive index for user emails
 //	emailIdx := datastore.NewIndex("email", func(r datastore.Record) string {
@@ -62,7 +62,7 @@
 //
 // Example query usage:
 //
-//	var db datastore.Datastore
+//	db := datastore.NewDatastore()
 //
 //	// Create a query with a custom offset and size
 //	storage := db.GetStorage("users")
@@ -80,7 +80,7 @@
 //
 // Example query using a custom index usage:
 //
-//	var db datastore.Datastore
+//	db := datastore.NewDatastore()
 //
 //	// Create a query to get records using a custom pre-defined index
 //	storage := db.GetStorage("posts")

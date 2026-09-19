@@ -3,8 +3,8 @@ package datastore
 import (
 	"encoding/binary"
 
-	"gno.land/p/nt/avl/v0"
-	"gno.land/p/nt/avl/v0/list"
+	"gno.land/p/nt/bptree/list/v0"
+	"gno.land/p/nt/bptree/v0"
 )
 
 // TODO: Support versioning
@@ -15,13 +15,16 @@ import (
 type Schema struct {
 	name     string
 	strict   bool
-	fields   list.List // int(field index) -> string(field name)
-	defaults avl.Tree  // string(field index) -> interface{}
+	fields   list.List      // int(field index) -> string(field name)
+	defaults *bptree.BPTree // string(field index) -> interface{}
 }
 
 // NewSchema creates a new schema.
 func NewSchema(name string, options ...SchemaOption) *Schema {
-	s := &Schema{name: name}
+	s := &Schema{
+		name:     name,
+		defaults: bptree.NewBPTree32(),
+	}
 	for _, apply := range options {
 		apply(s)
 	}
@@ -29,12 +32,12 @@ func NewSchema(name string, options ...SchemaOption) *Schema {
 }
 
 // Name returns schema's name.
-func (s Schema) Name() string {
+func (s *Schema) Name() string {
 	return s.name
 }
 
 // Fields returns the list field names that are defined in the schema.
-func (s Schema) Fields() []string {
+func (s *Schema) Fields() []string {
 	fields := make([]string, s.fields.Len())
 	s.fields.ForEach(func(i int, v interface{}) bool {
 		fields[i] = v.(string)
@@ -44,17 +47,17 @@ func (s Schema) Fields() []string {
 }
 
 // Size returns the number of fields the schema has.
-func (s Schema) Size() int {
+func (s *Schema) Size() int {
 	return s.fields.Len()
 }
 
 // IsStrict check if the schema is configured as a strict one.
-func (s Schema) IsStrict() bool {
+func (s *Schema) IsStrict() bool {
 	return s.strict
 }
 
 // HasField check is a field has been defined in the schema.
-func (s Schema) HasField(name string) bool {
+func (s *Schema) HasField(name string) bool {
 	return s.GetFieldIndex(name) >= 0
 }
 
@@ -82,7 +85,7 @@ func (s *Schema) AddField(name string, defaultValue interface{}) (index int, add
 //
 // Fields are internally referenced by index number instead of the name
 // to be able to rename fields easily.
-func (s Schema) GetFieldIndex(name string) int {
+func (s *Schema) GetFieldIndex(name string) int {
 	index := -1
 	s.fields.ForEach(func(i int, v interface{}) bool {
 		if name != v.(string) {
@@ -96,16 +99,15 @@ func (s Schema) GetFieldIndex(name string) int {
 }
 
 // GetFieldName returns the name of a field for a specific field index.
-func (s Schema) GetFieldName(index int) (name string, found bool) {
-	v := s.fields.Get(index)
-	if v == nil {
-		return "", false
+func (s *Schema) GetFieldName(index int) (name string, found bool) {
+	if v, ok := s.fields.Get(index); ok {
+		return v.(string), true
 	}
-	return v.(string), true
+	return "", false
 }
 
 // GetDefault returns the default value for a field.
-func (s Schema) GetDefault(name string) (value interface{}, found bool) {
+func (s *Schema) GetDefault(name string) (value interface{}, found bool) {
 	i := s.GetFieldIndex(name)
 	if i == -1 {
 		return nil, false
@@ -114,13 +116,13 @@ func (s Schema) GetDefault(name string) (value interface{}, found bool) {
 }
 
 // GetDefaultByIndex returns the default value for a field by it's index.
-func (s Schema) GetDefaultByIndex(index int) (value interface{}, found bool) {
+func (s *Schema) GetDefaultByIndex(index int) (value interface{}, found bool) {
 	key := castIntToKey(index)
-	v, found := s.defaults.Get(key)
-	if !found {
+	if !s.defaults.Has(key) {
 		return nil, false
 	}
 
+	v := s.defaults.Get(key)
 	if fn, ok := v.(func() interface{}); ok {
 		return fn(), true
 	}

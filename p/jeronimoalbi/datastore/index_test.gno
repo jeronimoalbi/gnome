@@ -3,7 +3,7 @@ package datastore
 import (
 	"testing"
 
-	"gno.land/p/moul/collection"
+	"gno.land/p/moul/collection/v0"
 	"gno.land/p/nt/uassert/v0"
 )
 

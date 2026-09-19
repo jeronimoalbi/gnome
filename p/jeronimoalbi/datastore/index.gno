@@ -1,7 +1,7 @@
 package datastore
 
 import (
-	"gno.land/p/moul/collection"
+	"gno.land/p/moul/collection/v0"
 )
 
 // DefaultIndexOptions defines the default options for new indexes.

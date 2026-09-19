@@ -3,8 +3,8 @@ package datastore
 import (
 	"errors"
 
-	"gno.land/p/moul/collection"
-	"gno.land/p/nt/avl/v0"
+	"gno.land/p/moul/collection/v0"
+	"gno.land/p/nt/bptree/v0"
 	"gno.land/p/nt/seqid/v0"
 )
 
@@ -74,7 +74,7 @@ type record struct {
 	id         uint64
 	schema     *Schema
 	collection *collection.Collection
-	values     avl.Tree // string(field index) -> interface{}
+	values     *bptree.BPTree // string(field index) -> interface{}
 }
 
 // ID returns record's ID
@@ -135,7 +135,10 @@ func (r record) Get(field string) (value interface{}, found bool) {
 	}
 
 	key := castIntToKey(i)
-	return r.values.Get(key)
+	if r.values.Has(key) {
+		return r.values.Get(key), true
+	}
+	return nil, false
 }
 
 // MustGet returns the value of a record's field or panics when the field is not found.
@@ -158,7 +161,7 @@ func (r *record) Save() bool {
 
 type recordset struct {
 	query   Query
-	records avl.ITree
+	records bptree.ITree
 	keys    []string
 	size    int
 }
@@ -167,12 +170,12 @@ type recordset struct {
 func (rs recordset) Iterate(fn RecordIterFn) (stopped bool) {
 	if rs.isUsingCustomIndex() {
 		for _, k := range rs.keys {
-			v, found := rs.records.Get(k)
-			if !found {
+			r, ok := rs.records.Get(k).(Record)
+			if !ok {
 				continue
 			}
 
-			if fn(v.(Record)) {
+			if fn(r) {
 				return true
 			}
 		}
@@ -195,12 +198,12 @@ func (rs recordset) Iterate(fn RecordIterFn) (stopped bool) {
 func (rs recordset) ReverseIterate(fn RecordIterFn) (stopped bool) {
 	if rs.isUsingCustomIndex() {
 		for i := len(rs.keys) - 1; i >= 0; i-- {
-			v, found := rs.records.Get(rs.keys[i])
-			if !found {
+			r, ok := rs.records.Get(rs.keys[i]).(Record)
+			if !ok {
 				continue
 			}
 
-			if fn(v.(Record)) {
+			if fn(r) {
 				return true
 			}
 		}

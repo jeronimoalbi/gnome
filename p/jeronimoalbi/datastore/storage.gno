@@ -4,7 +4,8 @@ import (
 	"errors"
 	"strings"
 
-	"gno.land/p/moul/collection"
+	"gno.land/p/moul/collection/v0"
+	"gno.land/p/nt/bptree/v0"
 	"gno.land/p/nt/seqid/v0"
 )
 
@@ -72,6 +73,7 @@ func (s Storage) NewRecord() Record {
 	r := &record{
 		schema:     s.schema,
 		collection: s.collection,
+		values:     bptree.NewBPTree32(),
 	}
 
 	// Assign default record values if the schema defines them
@@ -213,12 +215,9 @@ func (s Storage) getIndexRecordsKeys(indexName, indexKey string) ([]string, erro
 		return nil, errors.New("storage index for query not found: " + indexName)
 	}
 
-	var keys []string
-	if v, found := idx.Get(indexKey); found {
-		keys = castIfaceToRecordKeys(v)
-		if keys == nil {
-			return nil, errors.New("unexpected storage index key format")
-		}
+	keys := castIfaceToRecordKeys(idx.Get(indexKey))
+	if keys == nil {
+		return nil, errors.New("unexpected storage index key format")
 	}
 	return keys, nil
 }
