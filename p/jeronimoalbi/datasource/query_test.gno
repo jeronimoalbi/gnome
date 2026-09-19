@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"gno.land/p/nt/uassert/v0"
+	"gno.land/p/jeronimoalbi/expect"
 )
 
 func TestNewQuery(t *testing.T) {
@@ -86,17 +86,40 @@ func TestNewQuery(t *testing.T) {
 			q := NewQuery(tc.options...)
 
 			// Assert
-			uassert.Equal(t, want.Offset, q.Offset)
-			uassert.Equal(t, want.Count, q.Count)
-			uassert.Equal(t, want.Tag, q.Tag)
-			uassert.Equal(t, want.Filters.Size(), q.Filters.Size())
+			expect.
+				Value(t, q.Offset).
+				WithFailPrefix("Expect offset to match").
+				AsInt().
+				ToEqual(int64(want.Offset))
+			expect.
+				Value(t, q.Count).
+				WithFailPrefix("Expect count to match").
+				AsInt().
+				ToEqual(int64(want.Count))
+			expect.
+				Value(t, q.Tag).
+				WithFailPrefix("Expect tag to match").
+				AsString().
+				ToEqual(want.Tag)
+			expect.
+				Value(t, q.Filters.Size()).
+				WithFailPrefix("Expect filters count to match").
+				AsInt().
+				ToEqual(int64(want.Filters.Size()))
 
 			want.Filters.Iterate("", "", func(k string, v any) bool {
-				got, exists := q.Filters.Get(k)
-				uassert.True(t, exists)
-				if exists {
-					uassert.Equal(t, fmt.Sprint(v), fmt.Sprint(got))
-				}
+				expect.
+					Value(t, q.Filters.Has(k)).
+					WithFailPrefix("Expect filter to exist: " + k).
+					AsBoolean().
+					ToBeTruthy()
+
+				got := q.Filters.Get(k)
+				expect.
+					Value(t, fmt.Sprint(got)).
+					WithFailPrefix("Expect filter value to match: " + k).
+					AsString().
+					ToEqual(fmt.Sprint(v))
 				return false
 			})
 		})

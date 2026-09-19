@@ -4,8 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"gno.land/p/nt/uassert/v0"
-	"gno.land/p/nt/urequire/v0"
+	"gno.land/p/jeronimoalbi/expect"
 )
 
 func TestNewIterator(t *testing.T) {
@@ -41,17 +40,34 @@ func TestNewIterator(t *testing.T) {
 
 			// Assert
 			if tc.err != nil {
-				uassert.ErrorIs(t, tc.err, iter.Err())
+				expect.
+					Value(t, iter.Err()).
+					WithFailPrefix("Expect an iterator error").
+					ToEqual(tc.err)
 				return
 			}
 
-			uassert.NoError(t, iter.Err())
+			expect.
+				Value(t, iter.Err()).
+				WithFailPrefix("Expect no iterator error").
+				ToBeNil()
 
 			for i := 0; iter.Next(); i++ {
 				r := iter.Record()
-				urequire.NotEqual(t, nil, r, "valid record")
-				urequire.True(t, i < len(tc.records), "iteration count")
-				uassert.Equal(t, tc.records[i].ID(), r.ID())
+				expect.
+					Value(t, r).
+					WithFailPrefix("Expect a valid record").
+					Not().ToBeNil()
+				expect.
+					Value(t, i < len(tc.records)).
+					WithFailPrefix("Expect iteration count to be within records count").
+					AsBoolean().
+					ToBeTruthy()
+				expect.
+					Value(t, r.ID()).
+					WithFailPrefix("Expect record ID to match").
+					AsString().
+					ToEqual(tc.records[i].ID())
 			}
 		})
 	}
@@ -61,7 +77,7 @@ func TestQueryRecords(t *testing.T) {
 	cases := []struct {
 		name        string
 		records     []Record
-		recordCount int
+		recordCount int64
 		options     []QueryOption
 		err         error
 	}{
@@ -116,16 +132,33 @@ func TestQueryRecords(t *testing.T) {
 
 			// Assert
 			if tc.err != nil {
-				uassert.ErrorIs(t, tc.err, err)
+				expect.
+					Value(t, err).
+					WithFailPrefix("Expect a query error").
+					ToEqual(tc.err)
 				return
 			}
 
-			uassert.NoError(t, err)
+			expect.
+				Value(t, err).
+				WithFailPrefix("Expect no query error").
+				ToBeNil()
+			expect.
+				Value(t, len(records)).
+				WithFailPrefix("Expect record count to match").
+				AsInt().
+				ToEqual(tc.recordCount)
 
-			urequire.Equal(t, tc.recordCount, len(records), "record count")
 			for i, r := range records {
-				urequire.NotEqual(t, nil, r, "valid record")
-				uassert.Equal(t, tc.records[i].ID(), r.ID())
+				expect.
+					Value(t, r).
+					WithFailPrefix("Expect a valid record").
+					Not().ToBeNil()
+				expect.
+					Value(t, r.ID()).
+					WithFailPrefix("Expect record ID to match").
+					AsString().
+					ToEqual(tc.records[i].ID())
 			}
 		})
 	}
@@ -165,6 +198,7 @@ func (it *testIter) Next() bool {
 	if it.err != nil || count == 0 || it.index >= count {
 		return false
 	}
+
 	it.current = it.records[it.index]
 	it.index++
 	return true
