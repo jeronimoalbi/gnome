@@ -25,8 +25,8 @@ func main() {
 	tree.Set("banana", 3)
 
 	// Get value for app
-	v, ok := tree.Get("app")
-	println(v, ok)
+	v := tree.Get("app")
+	println(v)
 
 	// Iterate keys in lexicographic order: app, apple, banana.
 	tree.Iterate("", "", func(key string, value any) bool {
@@ -36,7 +36,7 @@ func main() {
 }
 
 // Output:
-// 2 true
+// 2
 // app 2
 // apple 1
 // banana 3

@@ -37,12 +37,13 @@ func (t *Tree) Has(key string) bool {
 }
 
 // Get retrieves the value associated with key.
-// It returns the value and whether the key exists.
-func (t *Tree) Get(key string) (value any, exists bool) {
+func (t *Tree) Get(key string) any {
 	if t.root == nil {
-		return nil, false
+		return nil
 	}
-	return t.root.get(key)
+
+	v, _ := t.root.get(key)
+	return v
 }
 
 // GetByIndex retrieves the key-value pair at the given index

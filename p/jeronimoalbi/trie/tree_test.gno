@@ -71,13 +71,12 @@ func TestTreeGet(t *testing.T) {
 	tree := trie.NewTree()
 	tree.Set("key1", "value1")
 
-	value, exists := tree.Get("key1")
-	if !exists || value != "value1" {
+	value := tree.Get("key1")
+	if value != "value1" {
 		t.Error("Expected Get to return value1 and true")
 	}
 
-	_, exists = tree.Get("key2")
-	if exists {
+	if tree.Has("key2") {
 		t.Error("Expected Get to return false for non-existent key")
 	}
 }
@@ -312,8 +311,8 @@ func TestTreePrefixKeys(t *testing.T) {
 
 	// Every key resolves to its own value.
 	for k, want := range map[string]int{"a": 1, "ab": 2, "abc": 3, "abd": 4, "b": 5} {
-		if v, ok := tree.Get(k); !ok || v != want {
-			t.Errorf("Get(%q) = %v, %v; want %d, true", k, v, ok, want)
+		if v := tree.Get(k); v != want {
+			t.Errorf("Get(%q) = %v, expected %v", k, v, want)
 		}
 	}
 
@@ -349,8 +348,8 @@ func TestTreeRemovePrefix(t *testing.T) {
 		t.Error("Expected ab to be gone")
 	}
 
-	if v, ok := tree.Get("abc"); !ok || v != 2 {
-		t.Errorf("Expected abc to remain, got %v, %v", v, ok)
+	if v := tree.Get("abc"); v != 2 {
+		t.Errorf("Expected abc to remain, got %v", v)
 	}
 
 	// Removing the longer key prunes the now-empty branch; re-adding works.
@@ -363,8 +362,8 @@ func TestTreeRemovePrefix(t *testing.T) {
 	}
 
 	tree.Set("abc", 9)
-	if v, ok := tree.Get("abc"); !ok || v != 9 {
-		t.Errorf("Expected abc=9 after re-insert, got %v, %v", v, ok)
+	if v := tree.Get("abc"); v != 9 {
+		t.Errorf("Expected abc=9 after re-insert, got %v", v)
 	}
 }
 
@@ -376,8 +375,8 @@ func TestTreeEmptyKey(t *testing.T) {
 
 	tree.Set("a", "a")
 
-	if v, ok := tree.Get(""); !ok || v != "root" {
-		t.Errorf("Expected empty key to store a value, got %v, %v", v, ok)
+	if v := tree.Get(""); v != "root" {
+		t.Errorf("Expected empty key to store a value, got %v", v)
 	}
 
 	// The empty key is the smallest key: first ascending, last descending.
