@@ -1,6 +1,6 @@
 package main
 
-import "gno.land/p/jeronimoalbi/bitset"
+import "gno.land/p/jeronimoalbi/bitset/v0"
 
 const (
 	PermRead   = 0

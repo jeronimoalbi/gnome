@@ -3,7 +3,7 @@ package bitset_test
 import (
 	"testing"
 
-	"gno.land/p/jeronimoalbi/bitset"
+	"gno.land/p/jeronimoalbi/bitset/v0"
 )
 
 func TestBitSetSet(t *testing.T) {
