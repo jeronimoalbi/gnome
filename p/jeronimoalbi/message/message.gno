@@ -1,3 +1,4 @@
+// Package message provides a simple message broker implementation.
 package message
 
 // TopicAll defines a topic for all types of message.
