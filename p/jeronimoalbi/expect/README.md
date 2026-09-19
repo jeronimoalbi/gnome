@@ -2,6 +2,9 @@
 
 Package for testing Gno packages and realms using function chaining and expressive semantics.
 
+Repository can be found at [jeronimoalbi/gnome](https://github.com/jeronimoalbi/gnome),
+as part of `jeronimoalbi`'s Gno smart contracts monorepo.
+
 ## Asserting Values
 
 Use `Value()` to check that a value meets expectations. Chain `Not()` to negate an assertion,

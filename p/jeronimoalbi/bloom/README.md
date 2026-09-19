@@ -9,6 +9,9 @@ return `true` for an element that was never added. This trade-off lets the filte
 use far less memory than storing the elements themselves, which makes it useful for
 membership checks such as caches, deduplication, or "have I seen this before?" tests.
 
+Repository can be found at [jeronimoalbi/gnome](https://github.com/jeronimoalbi/gnome),
+as part of `jeronimoalbi`'s Gno smart contracts monorepo.
+
 ## Usage
 
 [embedmd]:# (filetests/readme_filetest.gno go)

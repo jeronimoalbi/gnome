@@ -6,6 +6,9 @@ MurmurHash3 is a fast, non-cryptographic hash function well suited for hash tabl
 bloom filters, data partitioning, and deduplication where speed and good distribution
 matter more than cryptographic security.
 
+Repository can be found at [jeronimoalbi/gnome](https://github.com/jeronimoalbi/gnome),
+as part of `jeronimoalbi`'s Gno smart contracts monorepo.
+
 ## Usage
 
 [embedmd]:# (filetests/readme_filetest.gno go)

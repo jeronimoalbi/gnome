@@ -7,6 +7,9 @@ such as permissions, feature toggles, or membership sets, using significantly le
 memory than a slice of booleans while also supporting fast bulk operations across
 entire sets.
 
+Repository can be found at [jeronimoalbi/gnome](https://github.com/jeronimoalbi/gnome),
+as part of `jeronimoalbi`'s Gno smart contracts monorepo.
+
 ## Usage
 
 [embedmd]:# (filetests/readme_filetest.gno go)

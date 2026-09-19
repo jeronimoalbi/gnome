@@ -7,6 +7,9 @@ Package implements a simple prefix-tree (trie) for Gno realms, keyed by
 interface from `gno.land/p/nt/avl`, so it can be used as a drop-in alternative
 to an AVL tree.
 
+Repository can be found at [jeronimoalbi/gnome](https://github.com/jeronimoalbi/gnome),
+as part of `jeronimoalbi`'s Gno smart contracts monorepo.
+
 ## Usage
 
 [embedmd]:# (filetests/readme_filetest.gno go)

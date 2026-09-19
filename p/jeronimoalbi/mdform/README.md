@@ -4,6 +4,9 @@ The package provides a very simplistic [Gno-Flavored Markdown form](/r/docs/mark
 
 Forms can be created by sequentially calling form methods to create each one of the form fields.
 
+Repository can be found at [jeronimoalbi/gnome](https://github.com/jeronimoalbi/gnome),
+as part of `jeronimoalbi`'s Gno smart contracts monorepo.
+
 Example usage:
 
 ```go
