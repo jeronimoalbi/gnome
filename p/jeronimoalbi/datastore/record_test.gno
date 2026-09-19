@@ -93,10 +93,9 @@ func TestRecordSet(t *testing.T) {
 			// Assert
 			if tc.err != nil {
 				expect.
-					Func(t, func() error { return err }).
+					Value(t, err).
 					WithFailPrefix("expect a set error").
-					ToFail().
-					WithError(tc.err)
+					ToEqual(tc.err)
 				return
 			}
 
