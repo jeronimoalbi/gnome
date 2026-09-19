@@ -1,3 +1,4 @@
+// Package datastore provides support to store multiple collections of records.
 package datastore
 
 import (
