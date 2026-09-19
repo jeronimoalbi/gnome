@@ -3,8 +3,7 @@ package datastore
 import (
 	"testing"
 
-	"gno.land/p/nt/uassert/v0"
-	"gno.land/p/nt/urequire/v0"
+	"gno.land/p/jeronimoalbi/expect"
 )
 
 func TestSchemaNew(t *testing.T) {
@@ -37,13 +36,29 @@ func TestSchemaNew(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			s := NewSchema("Foo", tc.options...)
 
-			uassert.Equal(t, "Foo", s.Name())
-			uassert.Equal(t, tc.strict, s.IsStrict())
-			urequire.Equal(t, len(tc.fields), s.Size(), "field count")
+			expect.
+				Value(t, s.Name()).
+				AsString().
+				ToEqual("Foo")
+			expect.
+				Value(t, s.IsStrict()).
+				AsBoolean().
+				ToEqual(tc.strict)
+			expect.
+				Value(t, s.Size()).
+				WithFailPrefix("expect field count to match").
+				AsInt().
+				ToEqual(int64(len(tc.fields)))
 
 			for i, name := range s.Fields() {
-				uassert.Equal(t, tc.fields[i], name)
-				uassert.True(t, s.HasField(name))
+				expect.
+					Value(t, name).
+					AsString().
+					ToEqual(tc.fields[i])
+				expect.
+					Value(t, s.HasField(name)).
+					AsBoolean().
+					ToBeTruthy()
 			}
 		})
 	}
@@ -92,18 +107,40 @@ func TestSchemaAddField(t *testing.T) {
 			index, added := s.AddField(tc.fieldName, nil)
 
 			if tc.success {
-				uassert.Equal(t, tc.fieldIndex, index)
-				uassert.True(t, added)
+				expect.
+					Value(t, index).
+					AsInt().
+					ToEqual(int64(tc.fieldIndex))
+				expect.
+					Value(t, added).
+					AsBoolean().
+					ToBeTruthy()
 			} else {
-				uassert.Equal(t, -1, index)
-				uassert.False(t, added)
+				expect.
+					Value(t, index).
+					AsInt().
+					ToEqual(-1)
+				expect.
+					Value(t, added).
+					AsBoolean().
+					ToBeFalsy()
 			}
 
-			urequire.Equal(t, len(tc.fields), s.Size(), "field count")
+			expect.
+				Value(t, s.Size()).
+				WithFailPrefix("expect field count to match").
+				AsInt().
+				ToEqual(int64(len(tc.fields)))
 
 			for i, name := range s.Fields() {
-				uassert.Equal(t, tc.fields[i], name)
-				uassert.True(t, s.HasField(name))
+				expect.
+					Value(t, name).
+					AsString().
+					ToEqual(tc.fields[i])
+				expect.
+					Value(t, s.HasField(name)).
+					AsBoolean().
+					ToBeTruthy()
 			}
 		})
 	}
@@ -115,12 +152,12 @@ func TestSchemaGetFieldIndex(t *testing.T) {
 	s.AddField("bar", nil)
 	s.AddField("baz", nil)
 
-	uassert.Equal(t, 0, s.GetFieldIndex("foo"))
-	uassert.Equal(t, 1, s.GetFieldIndex("bar"))
-	uassert.Equal(t, 2, s.GetFieldIndex("baz"))
+	expect.Value(t, s.GetFieldIndex("foo")).AsInt().ToEqual(0)
+	expect.Value(t, s.GetFieldIndex("bar")).AsInt().ToEqual(1)
+	expect.Value(t, s.GetFieldIndex("baz")).AsInt().ToEqual(2)
 
-	uassert.Equal(t, -1, s.GetFieldIndex(""))
-	uassert.Equal(t, -1, s.GetFieldIndex("unknown"))
+	expect.Value(t, s.GetFieldIndex("")).AsInt().ToEqual(-1)
+	expect.Value(t, s.GetFieldIndex("unknown")).AsInt().ToEqual(-1)
 }
 
 func TestSchemaGetFieldName(t *testing.T) {
@@ -130,20 +167,20 @@ func TestSchemaGetFieldName(t *testing.T) {
 	s.AddField("baz", nil)
 
 	name, found := s.GetFieldName(0)
-	uassert.Equal(t, "foo", name)
-	uassert.True(t, found)
+	expect.Value(t, name).AsString().ToEqual("foo")
+	expect.Value(t, found).AsBoolean().ToBeTruthy()
 
 	name, found = s.GetFieldName(1)
-	uassert.Equal(t, "bar", name)
-	uassert.True(t, found)
+	expect.Value(t, name).AsString().ToEqual("bar")
+	expect.Value(t, found).AsBoolean().ToBeTruthy()
 
 	name, found = s.GetFieldName(2)
-	uassert.Equal(t, "baz", name)
-	uassert.True(t, found)
+	expect.Value(t, name).AsString().ToEqual("baz")
+	expect.Value(t, found).AsBoolean().ToBeTruthy()
 
 	name, found = s.GetFieldName(404)
-	uassert.Equal(t, "", name)
-	uassert.False(t, found)
+	expect.Value(t, name).AsString().ToBeEmpty()
+	expect.Value(t, found).AsBoolean().ToBeFalsy()
 }
 
 func TestSchemaGetDefault(t *testing.T) {
@@ -152,14 +189,18 @@ func TestSchemaGetDefault(t *testing.T) {
 	s.AddField("bar", 42)
 
 	_, found := s.GetDefault("foo")
-	uassert.False(t, found)
+	expect.Value(t, found).AsBoolean().ToBeFalsy()
 
 	v, found := s.GetDefault("bar")
-	uassert.True(t, found)
+	expect.Value(t, found).AsBoolean().ToBeTruthy()
 
 	got, ok := v.(int)
-	urequire.True(t, ok, "default field value")
-	uassert.Equal(t, 42, got)
+	expect.
+		Value(t, ok).
+		WithFailPrefix("expect default field value type to match").
+		AsBoolean().
+		ToBeTruthy()
+	expect.Value(t, got).AsInt().ToEqual(42)
 }
 
 func TestSchemaGetDefaultByIndex(t *testing.T) {
@@ -168,17 +209,21 @@ func TestSchemaGetDefaultByIndex(t *testing.T) {
 	s.AddField("bar", 42)
 
 	_, found := s.GetDefaultByIndex(0)
-	uassert.False(t, found)
+	expect.Value(t, found).AsBoolean().ToBeFalsy()
 
 	_, found = s.GetDefaultByIndex(404)
-	uassert.False(t, found)
+	expect.Value(t, found).AsBoolean().ToBeFalsy()
 
 	v, found := s.GetDefaultByIndex(1)
-	uassert.True(t, found)
+	expect.Value(t, found).AsBoolean().ToBeTruthy()
 
 	got, ok := v.(int)
-	urequire.True(t, ok, "default field value")
-	uassert.Equal(t, 42, got)
+	expect.
+		Value(t, ok).
+		WithFailPrefix("expect default field value type to match").
+		AsBoolean().
+		ToBeTruthy()
+	expect.Value(t, got).AsInt().ToEqual(42)
 }
 
 func TestSchemaRenameField(t *testing.T) {
@@ -187,24 +232,35 @@ func TestSchemaRenameField(t *testing.T) {
 	s.AddField("bar", nil)
 
 	renamed := s.RenameField("foo", "bar")
-	uassert.False(t, renamed)
+	expect.Value(t, renamed).AsBoolean().ToBeFalsy()
 
 	renamed = s.RenameField("", "baz")
-	uassert.False(t, renamed)
+	expect.Value(t, renamed).AsBoolean().ToBeFalsy()
 
 	renamed = s.RenameField("foo", "")
-	uassert.True(t, renamed)
+	expect.Value(t, renamed).AsBoolean().ToBeTruthy()
 
 	renamed = s.RenameField("", "foo")
-	uassert.True(t, renamed)
+	expect.Value(t, renamed).AsBoolean().ToBeTruthy()
 
 	renamed = s.RenameField("foo", "foobar")
-	uassert.True(t, renamed)
+	expect.Value(t, renamed).AsBoolean().ToBeTruthy()
 
-	urequire.Equal(t, 2, s.Size(), "field count")
+	expect.
+		Value(t, s.Size()).
+		WithFailPrefix("expect field count to match").
+		AsInt().
+		ToEqual(2)
+
 	fields := []string{"foobar", "bar"}
 	for i, name := range s.Fields() {
-		uassert.Equal(t, fields[i], name)
-		uassert.True(t, s.HasField(name))
+		expect.
+			Value(t, name).
+			AsString().
+			ToEqual(fields[i])
+		expect.
+			Value(t, s.HasField(name)).
+			AsBoolean().
+			ToBeTruthy()
 	}
 }

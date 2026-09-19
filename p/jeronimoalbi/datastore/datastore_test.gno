@@ -3,8 +3,7 @@ package datastore
 import (
 	"testing"
 
-	"gno.land/p/nt/uassert/v0"
-	"gno.land/p/nt/urequire/v0"
+	"gno.land/p/jeronimoalbi/expect"
 )
 
 func TestDatastoreCreateStorage(t *testing.T) {
@@ -38,13 +37,25 @@ func TestDatastoreCreateStorage(t *testing.T) {
 			storage := db.CreateStorage(tc.storageName)
 
 			if tc.mustFail {
-				uassert.Equal(t, nil, storage)
+				expect.
+					Value(t, storage).
+					WithFailPrefix("expect no storage").
+					ToBeNil()
 				return
 			}
 
-			urequire.NotEqual(t, nil, storage, "storage created")
-			uassert.Equal(t, tc.storageName, storage.Name())
-			uassert.True(t, db.HasStorage(tc.storageName))
+			expect.
+				Value(t, storage).
+				WithFailPrefix("expect storage to be created").
+				Not().ToBeNil()
+			expect.
+				Value(t, storage.Name()).
+				AsString().
+				ToEqual(tc.storageName)
+			expect.
+				Value(t, db.HasStorage(tc.storageName)).
+				AsBoolean().
+				ToBeTruthy()
 		})
 	}
 }
@@ -53,10 +64,17 @@ func TestDatastoreHasStorage(t *testing.T) {
 	db := NewDatastore()
 	name := "users"
 
-	uassert.False(t, db.HasStorage(name))
+	expect.
+		Value(t, db.HasStorage(name)).
+		AsBoolean().
+		ToBeFalsy()
 
 	db.CreateStorage(name)
-	uassert.True(t, db.HasStorage(name))
+
+	expect.
+		Value(t, db.HasStorage(name)).
+		AsBoolean().
+		ToBeTruthy()
 }
 
 func TestDatastoreGetStorage(t *testing.T) {
@@ -64,11 +82,19 @@ func TestDatastoreGetStorage(t *testing.T) {
 	name := "users"
 
 	storage := db.GetStorage(name)
-	uassert.Equal(t, nil, storage)
+	expect.
+		Value(t, storage).
+		ToBeNil()
 
 	db.CreateStorage(name)
 
 	storage = db.GetStorage(name)
-	urequire.NotEqual(t, nil, storage, "storage found")
-	uassert.Equal(t, name, storage.Name())
+	expect.
+		Value(t, storage).
+		WithFailPrefix("expect storage to be found").
+		Not().ToBeNil()
+	expect.
+		Value(t, storage.Name()).
+		AsString().
+		ToEqual(name)
 }

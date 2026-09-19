@@ -3,8 +3,8 @@ package datastore
 import (
 	"testing"
 
+	"gno.land/p/jeronimoalbi/expect"
 	"gno.land/p/moul/collection/v0"
-	"gno.land/p/nt/uassert/v0"
 )
 
 func TestNewIndex(t *testing.T) {
@@ -43,11 +43,21 @@ func TestNewIndex(t *testing.T) {
 				idx = tc.setup(idx)
 			}
 
-			uassert.Equal(t, name, idx.Name())
-			uassert.Equal(t, uint64(tc.options), uint64(idx.Options()))
+			expect.
+				Value(t, idx.Name()).
+				AsString().
+				ToEqual(name)
+			expect.
+				Value(t, uint64(idx.Options())).
+				AsUint().
+				ToEqual(uint64(tc.options))
 
 			_, ok := idx.Func().(func(interface{}) string)
-			uassert.True(t, ok)
+			expect.
+				Value(t, ok).
+				WithFailPrefix("expect index function type to match").
+				AsBoolean().
+				ToBeTruthy()
 		})
 	}
 }
@@ -88,11 +98,21 @@ func TestNewMultiIndex(t *testing.T) {
 				idx = tc.setup(idx)
 			}
 
-			uassert.Equal(t, name, idx.Name())
-			uassert.Equal(t, uint64(tc.options), uint64(idx.Options()))
+			expect.
+				Value(t, idx.Name()).
+				AsString().
+				ToEqual(name)
+			expect.
+				Value(t, uint64(idx.Options())).
+				AsUint().
+				ToEqual(uint64(tc.options))
 
 			_, ok := idx.Func().(func(interface{}) []string)
-			uassert.True(t, ok)
+			expect.
+				Value(t, ok).
+				WithFailPrefix("expect index function type to match").
+				AsBoolean().
+				ToBeTruthy()
 		})
 	}
 }

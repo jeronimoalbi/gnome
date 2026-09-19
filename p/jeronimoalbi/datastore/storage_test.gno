@@ -4,21 +4,35 @@ import (
 	"strings"
 	"testing"
 
-	"gno.land/p/nt/uassert/v0"
-	"gno.land/p/nt/urequire/v0"
+	"gno.land/p/jeronimoalbi/expect"
 )
 
 func TestStorageDefaults(t *testing.T) {
 	name := "foo"
 	storage := NewStorage(name)
 
-	uassert.Equal(t, name, storage.Name())
-	uassert.NotEqual(t, nil, storage.Collection())
-	uassert.Equal(t, 0, storage.Size())
+	expect.
+		Value(t, storage.Name()).
+		AsString().
+		ToEqual(name)
+	expect.
+		Value(t, storage.Collection()).
+		WithFailPrefix("Expect a collection").
+		Not().ToBeNil()
+	expect.
+		Value(t, storage.Size()).
+		AsInt().
+		ToEqual(0)
 
 	s := storage.Schema()
-	uassert.NotEqual(t, nil, s)
-	uassert.Equal(t, strings.Title(name), s.Name())
+	expect.
+		Value(t, s).
+		WithFailPrefix("Expect a schema").
+		Not().ToBeNil()
+	expect.
+		Value(t, s.Name()).
+		AsString().
+		ToEqual(strings.Title(name))
 }
 
 func TestStorageNewRecord(t *testing.T) {
@@ -28,16 +42,36 @@ func TestStorageNewRecord(t *testing.T) {
 	storage := NewStorage("foo", WithSchema(s))
 
 	r := storage.NewRecord()
-	urequire.NotEqual(t, nil, r, "new record is not nil")
-	uassert.Equal(t, uint64(0), r.ID())
-	uassert.Equal(t, storage.Schema().Name(), r.Type())
+	expect.
+		Value(t, r).
+		WithFailPrefix("Expect new record not to be nil").
+		Not().ToBeNil()
+	expect.
+		Value(t, r.ID()).
+		AsUint().
+		ToEqual(0)
+	expect.
+		Value(t, r.Type()).
+		AsString().
+		ToEqual(storage.Schema().Name())
 
 	v, found := r.Get(field)
-	urequire.True(t, found, "default value found")
+	expect.
+		Value(t, found).
+		WithFailPrefix("Expect default value to be found").
+		AsBoolean().
+		ToBeTruthy()
 
 	got, ok := v.(string)
-	urequire.True(t, ok, "default value type")
-	uassert.Equal(t, defaultValue, got)
+	expect.
+		Value(t, ok).
+		WithFailPrefix("Expect default value type to match").
+		AsBoolean().
+		ToBeTruthy()
+	expect.
+		Value(t, got).
+		AsString().
+		ToEqual(defaultValue)
 }
 
 func TestStorageQuery(t *testing.T) {
@@ -204,17 +238,34 @@ func TestStorageQuery(t *testing.T) {
 
 			// Assert
 			if tc.errMsg != "" {
-				uassert.ErrorContains(t, err, tc.errMsg, "expect error")
+				expect.
+					Value(t, err).
+					WithFailPrefix("Expect a query error").
+					ToContainErrorString(tc.errMsg)
 				return
 			}
 
-			urequire.NoError(t, err, "expect no error")
-			urequire.NotEqual(t, nil, rs, "new record is not nil")
-			urequire.Equal(t, len(tc.results), rs.Size(), "expect query results count to match")
+			expect.
+				Value(t, err).
+				WithFailPrefix("Expect no query error").
+				ToBeNil()
+			expect.
+				Value(t, rs).
+				WithFailPrefix("Expect recordset not to be nil").
+				Not().ToBeNil()
+			expect.
+				Value(t, rs.Size()).
+				WithFailPrefix("Expect query results count to match").
+				AsInt().
+				ToEqual(int64(len(tc.results)))
 
 			var i int
 			rs.Iterate(func(r Record) bool {
-				urequire.Equal(t, tc.results[i], r.ID(), "expect result IDs to match")
+				expect.
+					Value(t, r.ID()).
+					WithFailPrefix("Expect result IDs to match").
+					AsUint().
+					ToEqual(tc.results[i])
 				i++
 				return false
 			})
@@ -289,14 +340,32 @@ func TestStorageGet(t *testing.T) {
 			r, found := storage.Get(index.Name(), tc.key)
 
 			if tc.recordID == 0 {
-				uassert.Equal(t, nil, r, "expect no record")
-				uassert.False(t, found, "expect record not found")
+				expect.
+					Value(t, r).
+					WithFailPrefix("Expect no record").
+					ToBeNil()
+				expect.
+					Value(t, found).
+					WithFailPrefix("Expect record not found").
+					AsBoolean().
+					ToBeFalsy()
 				return
 			}
 
-			uassert.True(t, found, "expect record found")
-			urequire.NotEqual(t, nil, r, "expect record to be found")
-			uassert.Equal(t, tc.recordID, r.ID(), "expect ID to match")
+			expect.
+				Value(t, found).
+				WithFailPrefix("Expect record found").
+				AsBoolean().
+				ToBeTruthy()
+			expect.
+				Value(t, r).
+				WithFailPrefix("Expect record to be found").
+				Not().ToBeNil()
+			expect.
+				Value(t, r.ID()).
+				WithFailPrefix("Expect ID to match").
+				AsUint().
+				ToEqual(tc.recordID)
 		})
 	}
 }
@@ -350,14 +419,32 @@ func TestStorageGetByID(t *testing.T) {
 			r, found := storage.GetByID(tc.recordID)
 
 			if !tc.found {
-				uassert.Equal(t, nil, r, "expect no record")
-				uassert.False(t, found, "expect record not found")
+				expect.
+					Value(t, r).
+					WithFailPrefix("Expect no record").
+					ToBeNil()
+				expect.
+					Value(t, found).
+					WithFailPrefix("Expect record not found").
+					AsBoolean().
+					ToBeFalsy()
 				return
 			}
 
-			uassert.True(t, found, "expect record found")
-			urequire.NotEqual(t, nil, r, "expect record to be found")
-			uassert.Equal(t, tc.recordID, r.ID(), "expect ID to match")
+			expect.
+				Value(t, found).
+				WithFailPrefix("Expect record found").
+				AsBoolean().
+				ToBeTruthy()
+			expect.
+				Value(t, r).
+				WithFailPrefix("Expect record to be found").
+				Not().ToBeNil()
+			expect.
+				Value(t, r.ID()).
+				WithFailPrefix("Expect ID to match").
+				AsUint().
+				ToEqual(tc.recordID)
 		})
 	}
 }
@@ -368,8 +455,16 @@ func TestStorageDelete(t *testing.T) {
 	r.Save()
 
 	deleted := storage.Delete(r.ID())
-	uassert.True(t, deleted)
+	expect.
+		Value(t, deleted).
+		WithFailPrefix("Expect record to be deleted").
+		AsBoolean().
+		ToBeTruthy()
 
 	deleted = storage.Delete(r.ID())
-	uassert.False(t, deleted)
+	expect.
+		Value(t, deleted).
+		WithFailPrefix("Expect record not to be deleted twice").
+		AsBoolean().
+		ToBeFalsy()
 }

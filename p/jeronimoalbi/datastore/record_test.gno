@@ -3,8 +3,7 @@ package datastore
 import (
 	"testing"
 
-	"gno.land/p/nt/uassert/v0"
-	"gno.land/p/nt/urequire/v0"
+	"gno.land/p/jeronimoalbi/expect"
 )
 
 var (
@@ -20,11 +19,11 @@ func TestRecordDefaults(t *testing.T) {
 	r := storage.NewRecord()
 
 	// Assert
-	uassert.Equal(t, uint64(0), r.ID())
-	uassert.Equal(t, "0000000", r.Key())
-	uassert.Equal(t, "Foo", r.Type())
-	uassert.Equal(t, nil, r.Fields())
-	uassert.True(t, r.IsEmpty())
+	expect.Value(t, r.ID()).AsUint().ToEqual(0)
+	expect.Value(t, r.Key()).AsString().ToEqual("0000000")
+	expect.Value(t, r.Type()).AsString().ToEqual("Foo")
+	expect.Value(t, len(r.Fields())).AsInt().ToEqual(0)
+	expect.Value(t, r.IsEmpty()).AsBoolean().ToBeTruthy()
 }
 
 func TestRecordHasField(t *testing.T) {
@@ -33,8 +32,8 @@ func TestRecordHasField(t *testing.T) {
 
 	r := storage.NewRecord()
 
-	uassert.True(t, r.HasField("foo"))
-	uassert.False(t, r.HasField("undefined"))
+	expect.Value(t, r.HasField("foo")).AsBoolean().ToBeTruthy()
+	expect.Value(t, r.HasField("undefined")).AsBoolean().ToBeFalsy()
 }
 
 func TestRecordSet(t *testing.T) {
@@ -93,14 +92,31 @@ func TestRecordSet(t *testing.T) {
 
 			// Assert
 			if tc.err != nil {
-				urequire.ErrorIs(t, err, tc.err)
+				expect.
+					Func(t, func() error { return err }).
+					WithFailPrefix("expect a set error").
+					ToFail().
+					WithError(tc.err)
 				return
 			}
 
-			urequire.NoError(t, err)
-			uassert.True(t, r.HasField("test"))
-			uassert.False(t, r.IsEmpty())
-			uassert.Equal(t, tc.fieldsCount, len(r.Fields()))
+			expect.
+				Value(t, err).
+				WithFailPrefix("expect no set error").
+				ToBeNil()
+			expect.
+				Value(t, r.HasField("test")).
+				AsBoolean().
+				ToBeTruthy()
+			expect.
+				Value(t, r.IsEmpty()).
+				AsBoolean().
+				ToBeFalsy()
+			expect.
+				Value(t, len(r.Fields())).
+				WithFailPrefix("expect fields count to match").
+				AsInt().
+				ToEqual(int64(tc.fieldsCount))
 		})
 	}
 }
@@ -112,14 +128,29 @@ func TestRecordGet(t *testing.T) {
 	r.Set("test", 42)
 
 	v, found := r.Get("test")
-	urequire.True(t, found, "get setted value")
+	expect.
+		Value(t, found).
+		WithFailPrefix("expect value to be found").
+		AsBoolean().
+		ToBeTruthy()
 
 	got, ok := v.(int)
-	urequire.True(t, ok, "setted value type")
-	uassert.Equal(t, 42, got)
+	expect.
+		Value(t, ok).
+		WithFailPrefix("expect value type to match").
+		AsBoolean().
+		ToBeTruthy()
+	expect.
+		Value(t, got).
+		AsInt().
+		ToEqual(42)
 
 	_, found = r.Get("unknown")
-	uassert.False(t, found)
+	expect.
+		Value(t, found).
+		WithFailPrefix("expect unknown value not to be found").
+		AsBoolean().
+		ToBeFalsy()
 }
 
 func TestRecordSave(t *testing.T) {
@@ -170,15 +201,43 @@ func TestRecordSave(t *testing.T) {
 			r.Set("name", tc.fieldValue)
 
 			_, found := storage.Get(index.Name(), tc.fieldValue)
-			urequire.False(t, found, "record not found")
-			urequire.True(t, r.Save(), "save success")
-			uassert.Equal(t, tc.storageSize, storage.Size())
+			expect.
+				Value(t, found).
+				WithFailPrefix("expect record not to be found").
+				AsBoolean().
+				ToBeFalsy()
+			expect.
+				Value(t, r.Save()).
+				WithFailPrefix("expect save to succeed").
+				AsBoolean().
+				ToBeTruthy()
+			expect.
+				Value(t, storage.Size()).
+				WithFailPrefix("expect storage size to match").
+				AsInt().
+				ToEqual(int64(tc.storageSize))
 
 			r, found = storage.Get(index.Name(), tc.fieldValue)
-			urequire.True(t, found, "record found")
-			uassert.Equal(t, tc.id, r.ID())
-			uassert.Equal(t, tc.key, r.Key())
-			uassert.Equal(t, tc.fieldValue, r.MustGet("name"))
+			expect.
+				Value(t, found).
+				WithFailPrefix("expect record to be found").
+				AsBoolean().
+				ToBeTruthy()
+			expect.
+				Value(t, r.ID()).
+				WithFailPrefix("expect ID to match").
+				AsUint().
+				ToEqual(tc.id)
+			expect.
+				Value(t, r.Key()).
+				WithFailPrefix("expect key to match").
+				AsString().
+				ToEqual(tc.key)
+			expect.
+				Value(t, r.MustGet("name")).
+				WithFailPrefix("expect field value to match").
+				AsString().
+				ToEqual(tc.fieldValue)
 		})
 	}
 }
@@ -229,9 +288,17 @@ func TestRecordsetIterate(t *testing.T) {
 			})
 
 			// Assert
-			urequire.Equal(t, len(tc.recordIDs), len(records), "results count")
+			expect.
+				Value(t, len(records)).
+				WithFailPrefix("expect results count to match").
+				AsInt().
+				ToEqual(int64(len(tc.recordIDs)))
+
 			for i, r := range records {
-				uassert.Equal(t, tc.recordIDs[i], r.ID())
+				expect.
+					Value(t, r.ID()).
+					AsUint().
+					ToEqual(tc.recordIDs[i])
 			}
 		})
 	}
@@ -283,9 +350,17 @@ func TestRecordsetReverseIterate(t *testing.T) {
 			})
 
 			// Assert
-			urequire.Equal(t, len(tc.recordIDs), len(records), "results count")
+			expect.
+				Value(t, len(records)).
+				WithFailPrefix("expect results count to match").
+				AsInt().
+				ToEqual(int64(len(tc.recordIDs)))
+
 			for i, r := range records {
-				uassert.Equal(t, tc.recordIDs[i], r.ID())
+				expect.
+					Value(t, r.ID()).
+					AsUint().
+					ToEqual(tc.recordIDs[i])
 			}
 		})
 	}
@@ -331,7 +406,10 @@ func TestRecordsetSize(t *testing.T) {
 			size := rs.Size()
 
 			// Assert
-			uassert.Equal(t, tc.size, size)
+			expect.
+				Value(t, size).
+				AsInt().
+				ToEqual(int64(tc.size))
 		})
 	}
 }
