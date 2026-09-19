@@ -4,8 +4,8 @@ import (
 	"errors"
 	"strings"
 
-	"gno.land/p/moul/ulist"
-	"gno.land/p/nt/avl/v0"
+	"gno.land/p/moul/ulist/v0"
+	"gno.land/p/nt/bptree/v0"
 )
 
 var (
@@ -24,16 +24,18 @@ var (
 
 // NewBroker creates a new message broker.
 func NewBroker() *Broker {
-	return &Broker{}
+	return &Broker{
+		callbacks: bptree.NewBPTree32(),
+	}
 }
 
 // Broker is a message broker that handles subscriptions and message publishing.
 type Broker struct {
-	callbacks avl.Tree // string(topic) -> *ulist.List(Callback)
+	callbacks *bptree.BPTree // string(topic) -> *ulist.List(Callback)
 }
 
 // Topics returns the list of current subscription topics.
-func (b Broker) Topics() []Topic {
+func (b *Broker) Topics() []Topic {
 	var topics []Topic
 	b.callbacks.Iterate("", "", func(k string, _ any) bool {
 		topic := Topic(k)
@@ -60,8 +62,7 @@ func (b *Broker) Subscribe(topic Topic, cb Callback) (id int, _ error) {
 		return 0, ErrRequiredCallback
 	}
 
-	v, _ := b.callbacks.Get(key)
-	callbacks, _ := v.(*ulist.List)
+	callbacks, _ := b.callbacks.Get(key).(*ulist.List)
 	if callbacks == nil {
 		callbacks = ulist.New()
 	}
@@ -83,18 +84,17 @@ func (b *Broker) Unsubscribe(topic Topic, id int) (unsubscribed bool, _ error) {
 		return false, ErrRequiredSubscriptionID
 	}
 
-	v, found := b.callbacks.Get(key)
-	if !found {
+	callbacks, ok := b.callbacks.Get(key).(*ulist.List)
+	if !ok {
 		return false, errors.New("message topic not found: " + key)
 	}
 
-	callbacks := v.(*ulist.List)
 	i := id - 1
 	return callbacks.Delete(i) == nil, nil
 }
 
 // Publish publishes a message for a topic.
-func (b Broker) Publish(topic Topic, data any) error {
+func (b *Broker) Publish(topic Topic, data any) error {
 	if topic == TopicAll {
 		return ErrInvalidTopic
 	}
@@ -111,16 +111,12 @@ func (b Broker) Publish(topic Topic, data any) error {
 	}
 
 	// Trigger callbacks subscribed to current topic
-	v, found := b.callbacks.Get(key)
-	if found {
-		callbacks := v.(*ulist.List)
+	if callbacks, ok := b.callbacks.Get(key).(*ulist.List); ok {
 		callbacks.Iterator(0, callbacks.Size(), iterCb)
 	}
 
 	// Trigger callbacks subscribed to all topics
-	v, found = b.callbacks.Get(string(TopicAll))
-	if found {
-		callbacks := v.(*ulist.List)
+	if callbacks, ok := b.callbacks.Get(string(TopicAll)).(*ulist.List); ok {
 		callbacks.Iterator(0, callbacks.Size(), iterCb)
 	}
 	return nil
