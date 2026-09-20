@@ -3,7 +3,7 @@ package murmur3_test
 import (
 	"testing"
 
-	"gno.land/p/jeronimoalbi/murmur3"
+	"gno.land/p/jeronimoalbi/murmur3/v0"
 )
 
 func TestHash32Sum32(t *testing.T) {

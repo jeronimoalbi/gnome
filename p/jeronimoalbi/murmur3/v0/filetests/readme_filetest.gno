@@ -1,21 +1,6 @@
-# MurmurHash3 Package
-
-Package implements Austin Appleby's MurmurHash3 algorithm.
-
-MurmurHash3 is a fast, non-cryptographic hash function well suited for hash tables,
-bloom filters, data partitioning, and deduplication where speed and good distribution
-matter more than cryptographic security.
-
-Repository can be found at [jeronimoalbi/gnome](https://github.com/jeronimoalbi/gnome),
-as part of `jeronimoalbi`'s Gno smart contracts monorepo.
-
-## Usage
-
-[embedmd]:# (filetests/readme_filetest.gno go)
-```go
 package main
 
-import "gno.land/p/jeronimoalbi/murmur3"
+import "gno.land/p/jeronimoalbi/murmur3/v0"
 
 func main() {
 	data := []byte("Hello, world!")
@@ -71,4 +56,3 @@ func main() {
 // c0363e432c8c8533
 // c0363e43aa5dc85b
 // c0363e432c8c8533
-```
