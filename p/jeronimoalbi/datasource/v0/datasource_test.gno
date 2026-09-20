@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"gno.land/p/jeronimoalbi/expect"
+	"gno.land/p/jeronimoalbi/expect/v0"
 )
 
 func TestNewIterator(t *testing.T) {

@@ -1,43 +1,10 @@
-# Datasource Package
-
-Package defines generic interfaces for datasources. A datasource is a set of
-records that can be read one at a time or iterated, and that can optionally be
-taggable so they can be filtered by category.
-
-Datasources are useful when the data exchanged between different realms has to
-stay generic, avoiding direct dependencies between them. A realm that consumes
-records only needs to know the `Datasource` interface, not the realm that
-provides them.
-
-The package doesn't ship a datasource implementation. It provides the contracts, a
-`Query` type configured with the `WithOffset`, `WithCount`, `ByTag` and `WithFilter`
-options, and the `NewIterator` and `QueryRecords` helpers. How each query option
-is honoured is up to the datasource. `QueryRecords` enforces the record count
-itself, so datasources only have to apply the tag, filters and offset.
-
-Datasources that keep their records in memory can use `NewRecordIterator` to
-return the iterator that queries expect, and `NewFieldsFromMap` to expose a map
-as read-only record fields, instead of writing their own.
-
-> [!WARNING]
-> For security, any public function that accepts a Datasource as a parameter from
-> external callers MUST verify that the received datasource is an expected canonical
-> one.
-
-Repository can be found at [jeronimoalbi/gnome](https://github.com/jeronimoalbi/gnome),
-as part of `jeronimoalbi`'s Gno smart contracts monorepo.
-
-## Usage
-
-[embedmd]:# (filetests/readme_filetest.gno go)
-```go
 package main
 
 import (
 	"errors"
 	"strings"
 
-	"gno.land/p/jeronimoalbi/datasource"
+	"gno.land/p/jeronimoalbi/datasource/v0"
 )
 
 func main() {
@@ -156,4 +123,3 @@ func (p post) hasTag(tag string) bool {
 // 4 Testing in Gno
 // Tags: gno, realms
 // Title: Realms 101
-```

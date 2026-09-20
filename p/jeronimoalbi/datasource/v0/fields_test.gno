@@ -3,7 +3,7 @@ package datasource
 import (
 	"testing"
 
-	"gno.land/p/jeronimoalbi/expect"
+	"gno.land/p/jeronimoalbi/expect/v0"
 )
 
 func TestNewFieldsFromMap(t *testing.T) {

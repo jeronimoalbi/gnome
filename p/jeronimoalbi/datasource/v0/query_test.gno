@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"gno.land/p/jeronimoalbi/expect"
+	"gno.land/p/jeronimoalbi/expect/v0"
 )
 
 func TestNewQuery(t *testing.T) {
