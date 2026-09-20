@@ -1,6 +1,6 @@
 package main
 
-import "gno.land/p/jeronimoalbi/trie"
+import "gno.land/p/jeronimoalbi/trie/v0"
 
 func main() {
 	tree := trie.NewTree()

@@ -3,7 +3,7 @@ package trie_test
 import (
 	"testing"
 
-	"gno.land/p/jeronimoalbi/trie"
+	"gno.land/p/jeronimoalbi/trie/v0"
 )
 
 func TestNewTree(t *testing.T) {

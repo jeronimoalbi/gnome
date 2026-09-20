@@ -16,7 +16,7 @@ as part of `jeronimoalbi`'s Gno smart contracts monorepo.
 ```go
 package main
 
-import "gno.land/p/jeronimoalbi/trie"
+import "gno.land/p/jeronimoalbi/trie/v0"
 
 func main() {
 	tree := trie.NewTree()
