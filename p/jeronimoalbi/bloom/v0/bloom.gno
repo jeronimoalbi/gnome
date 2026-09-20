@@ -12,8 +12,8 @@ package bloom
 import (
 	"math"
 
-	"gno.land/p/jeronimoalbi/bitset"
-	"gno.land/p/jeronimoalbi/murmur3"
+	"gno.land/p/jeronimoalbi/bitset/v0"
+	"gno.land/p/jeronimoalbi/murmur3/v0"
 )
 
 // Bloom is a probabilistic set-membership filter.

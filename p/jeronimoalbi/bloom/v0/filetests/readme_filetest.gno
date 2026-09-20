@@ -1,6 +1,6 @@
 package main
 
-import "gno.land/p/jeronimoalbi/bloom"
+import "gno.land/p/jeronimoalbi/bloom/v0"
 
 func main() {
 	// Create a filter expecting up to 1000 items with a 1% false-positive rate.

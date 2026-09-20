@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"testing"
 
-	"gno.land/p/jeronimoalbi/bloom"
+	"gno.land/p/jeronimoalbi/bloom/v0"
 )
 
 func TestNewWithMK(t *testing.T) {
