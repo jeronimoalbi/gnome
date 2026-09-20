@@ -1,6 +1,24 @@
+# Message Package
+
+Package provides a simple message broker implementation.
+
+The message broker is a Pub/Sub one. It implements two different interfaces,
+`Publisher` and `Subscriber`, which are also defined within this package.
+
+Published messages contain the topic where they are published and optional
+message data. Subscribing to the `TopicAll` topic triggers the callback for
+messages published to any topic.
+
+Repository can be found at [jeronimoalbi/gnome](https://github.com/jeronimoalbi/gnome),
+as part of `jeronimoalbi`'s Gno smart contracts monorepo.
+
+## Usage
+
+[embedmd]:# (filetests/readme_filetest.gno go)
+```go
 package main
 
-import "gno.land/p/jeronimoalbi/message"
+import "gno.land/p/jeronimoalbi/message/v0"
 
 func main() {
 	broker := message.NewBroker()
@@ -38,3 +56,4 @@ func main() {
 
 // Output:
 // EventName has been triggered: Example event data
+```
