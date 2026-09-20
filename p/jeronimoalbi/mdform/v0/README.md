@@ -10,7 +10,7 @@ as part of `jeronimoalbi`'s Gno smart contracts monorepo.
 Example usage:
 
 ```go
-import "gno.land/p/jeronimoalbi/mdform"
+import "gno.land/p/jeronimoalbi/mdform/v0"
 
 func Render(string) string {
     form := mdform.New()
