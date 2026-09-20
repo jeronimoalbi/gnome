@@ -1,6 +1,6 @@
 package main
 
-import "gno.land/p/jeronimoalbi/datastore"
+import "gno.land/p/jeronimoalbi/datastore/v0"
 
 func main() {
 	db := datastore.NewDatastore()

@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"gno.land/p/jeronimoalbi/expect"
+	"gno.land/p/jeronimoalbi/expect/v0"
 )
 
 func TestStorageDefaults(t *testing.T) {

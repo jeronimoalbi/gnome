@@ -35,7 +35,7 @@ as part of `jeronimoalbi`'s Gno smart contracts monorepo.
 ```go
 package main
 
-import "gno.land/p/jeronimoalbi/datastore"
+import "gno.land/p/jeronimoalbi/datastore/v0"
 
 func main() {
 	db := datastore.NewDatastore()
@@ -80,7 +80,7 @@ func main() {
 ```go
 package main
 
-import "gno.land/p/jeronimoalbi/datastore"
+import "gno.land/p/jeronimoalbi/datastore/v0"
 
 func main() {
 	db := datastore.NewDatastore()

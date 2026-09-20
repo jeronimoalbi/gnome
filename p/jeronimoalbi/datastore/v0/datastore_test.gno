@@ -3,7 +3,7 @@ package datastore
 import (
 	"testing"
 
-	"gno.land/p/jeronimoalbi/expect"
+	"gno.land/p/jeronimoalbi/expect/v0"
 )
 
 func TestDatastoreCreateStorage(t *testing.T) {
